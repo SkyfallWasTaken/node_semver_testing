@@ -2,13 +2,13 @@ use eyre::Result;
 use owo_colors::OwoColorize;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
+use bytes::Bytes;
 
 pub async fn invoke() -> Result<()> {
     let client = reqwest::ClientBuilder::new().gzip(true).build()?;
 
     let mut file = OpenOptions::new()
         .create(true)
-        .write(true)
         .append(true)
         .open("dump.json")
         .await?;
@@ -19,6 +19,7 @@ pub async fn invoke() -> Result<()> {
         .send()
         .await?;
 
+    let buffer = Bytes::new();
     while let Some(chunk) = response.chunk().await? {
         file.write_all(&chunk).await?
     }

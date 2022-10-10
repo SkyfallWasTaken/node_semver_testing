@@ -37,7 +37,6 @@ pub async fn invoke() -> Result<()> {
 
     let mut out_file = OpenOptions::new()
         .create(true)
-        .write(true)
         .append(true)
         .open("package_names.txt")
         .await?;
