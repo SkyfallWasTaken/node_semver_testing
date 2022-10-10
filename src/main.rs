@@ -1,8 +1,9 @@
-use std::{env, process};
 use owo_colors::OwoColorize;
+use std::{env, process};
 
-mod write_dump;
+mod extract_package_names;
 mod test_dump;
+mod write_dump;
 
 #[tokio::main]
 async fn main() {
@@ -15,6 +16,7 @@ async fn main() {
 
     match command {
         "write-dump" => write_dump::invoke().await.unwrap(),
+        "extract-package-names" => extract_package_names::invoke().await.unwrap(),
         "test-dump" => test_dump::invoke().await,
         _ => {
             eprintln!("{}", "command not found!".red().bold());
