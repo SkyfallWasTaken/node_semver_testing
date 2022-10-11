@@ -17,6 +17,6 @@ This will remove all working files, and run each step.
 
 - **write-dump:** This dumps all npm package names to `dump.json`, as well as CouchDB revisions.
   - ⚠️ This takes a _long_ time, and the resulting file is _very_ large. If distributing said file, you basically have to compress said file as best as you can. However, you likely want to use...
-- **extract-package-names:** This takes `dump.json` and simply outputs the names.
-- **dump-versions-and-ranges:** This gets all the versions and ranges, and dumps them to `versions.txt` and `ranges.txt` respectively. 
+- **extract-package-names:** This takes `dump.json` and simply outputs the names to `package_names.json`. Much better.
+- **get-versions-and-ranges:** This gets all the versions of the packages and ranges, and dumps them to `versions.txt` and `ranges.txt` respectively. 
 - **test-versions-and-ranges:** Tests `node_semver` and npm semver parsing using `versions.txt` and `ranges.txt`.

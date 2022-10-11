@@ -1,13 +1,16 @@
+use eyre::Result;
 use owo_colors::OwoColorize;
 use std::{env, process};
 
 mod extract_package_names;
-mod test_dump;
+mod get_versions_and_ranges;
+mod test_versions_and_ranges;
+mod util;
 mod write_dump;
 
 #[tokio::main]
-async fn main() {
-    color_eyre::install().unwrap();
+async fn main() -> Result<()> {
+    color_eyre::install()?;
 
     // We don't need a full argument parser, so this will do
     let args: Vec<String> = env::args().collect();
@@ -16,12 +19,14 @@ async fn main() {
 
     match command {
         "write-dump" => write_dump::invoke().await.unwrap(),
-        "extract-package-names" => extract_package_names::invoke().await.unwrap(),
-        "test-dump" => test_dump::invoke().await,
+        "extract-package-names" => extract_package_names::invoke().await?,
+        "get-versions-and-ranges" => get_versions_and_ranges::invoke().await?,
         _ => {
             eprintln!("{}", "command not found!".red().bold());
-            eprintln!("commands: write-dump, test-dump");
+            eprintln!("commands: write-dump, extract-package-names, get-versions-and-ranges");
             process::exit(exitcode::USAGE)
         }
-    }
+    };
+
+    Ok(())
 }

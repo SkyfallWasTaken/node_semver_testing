@@ -495,10 +495,10 @@ dependencies = [
 name = "npm_registry"
 version = "0.1.0"
 dependencies = [
- "bytes",
  "color-eyre",
  "exitcode",
  "eyre",
+ "once_cell",
  "owo-colors",
  "reqwest",
  "serde",

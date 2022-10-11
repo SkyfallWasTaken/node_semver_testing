@@ -1,6 +1,6 @@
-rm -rf package_names.txt
-rm dump.json
-rm -f
+rm out > /dev/null
+set -o pipefail
+mkdir out
 cargo build --release
 $bin=target/debug/release
 $bin write-dump

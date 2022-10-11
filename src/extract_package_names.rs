@@ -1,6 +1,6 @@
 use eyre::Result;
 use owo_colors::OwoColorize;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tokio::{
     fs::{read_to_string, OpenOptions},
     io::AsyncWriteExt,
@@ -8,20 +8,20 @@ use tokio::{
 };
 
 #[derive(Deserialize)]
-pub struct Dump {
+struct Dump {
     total_rows: i32,
     rows: Vec<Dependency>,
 }
 
-#[derive(Deserialize)]
-pub struct Dependency {
+#[derive(Serialize, Deserialize)]
+struct Dependency {
     id: String,
 }
 
 pub async fn invoke() -> Result<()> {
     println!("{} of raw dump.", "Starting parsing".green().bold());
     let start = Instant::now();
-    let file = read_to_string("dump.json").await?;
+    let file = read_to_string("out/dump.json").await?;
     let dump: Dump = serde_json::from_str(&file)?;
     println!(
         "{} in {:?} seconds.",
@@ -38,15 +38,21 @@ pub async fn invoke() -> Result<()> {
     let mut out_file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open("package_names.txt")
+        .open("out/package_names.json")
         .await?;
 
     let mut result = String::new();
-    for dependency in dump.rows.iter() {
-        result.push_str(&format!("{},", dependency.id))
+    for (index, dependency) in dump.rows.iter().enumerate() {
+        result.push_str(&format!("  \"{}\"", dependency.id));
+        if index != (dump.total_rows - 2) as usize {
+            result.push(',');
+            result.push('\n')
+        }
     }
 
-    out_file.write_all(result.as_bytes()).await?;
+    out_file
+        .write_all(format!("[\n{result}\n]").as_bytes())
+        .await?;
 
     println!(
         "{} in {:?} seconds.",

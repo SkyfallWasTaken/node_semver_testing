@@ -1,16 +1,16 @@
+use crate::util::get_client;
 use eyre::Result;
 use owo_colors::OwoColorize;
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
-use bytes::Bytes;
 
 pub async fn invoke() -> Result<()> {
-    let client = reqwest::ClientBuilder::new().gzip(true).build()?;
+    let client = get_client();
 
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open("dump.json")
+        .open("out/dump.json")
         .await?;
 
     println!("{} to `dump.json`", "Writing dump".green().bold());
@@ -19,10 +19,18 @@ pub async fn invoke() -> Result<()> {
         .send()
         .await?;
 
-    let buffer = Bytes::new();
+    let mut buffer = Vec::new();
+    let mut chunk_count = 0;
     while let Some(chunk) = response.chunk().await? {
-        file.write_all(&chunk).await?
+        // New chunk!
+        chunk_count += 1;
+        if chunk_count % 50 == 0 {
+            println!("Now on chunk {chunk_count} ({} bytes)", buffer.len())
+        }
+        buffer.write_all(&chunk).await?;
     }
+
+    file.write_all(buffer.as_slice()).await?;
 
     Ok(())
 }
