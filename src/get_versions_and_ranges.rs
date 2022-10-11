@@ -31,18 +31,18 @@ pub async fn invoke() -> Result<()> {
         .await?;
 
         for (version, _) in dependency.versions {
-            versions.push(version)
+            versions.push(version);
         }
 
         if let Some(dependencies) = dependency.dependencies {
             for (_, version) in dependencies {
-                ranges.push(version)
+                ranges.push(version);
             }
         }
 
         if let Some(dev_dependencies) = dependency.dev_dependencies {
             for (_, version) in dev_dependencies {
-                ranges.push(version)
+                ranges.push(version);
             }
         }
 

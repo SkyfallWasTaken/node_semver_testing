@@ -25,7 +25,7 @@ pub async fn invoke() -> Result<()> {
         // New chunk!
         chunk_count += 1;
         if chunk_count % 50 == 0 {
-            println!("Now on chunk {chunk_count} ({} bytes)", buffer.len())
+            println!("Now on chunk {chunk_count} ({} bytes)", buffer.len());
         }
         buffer.write_all(&chunk).await?;
     }

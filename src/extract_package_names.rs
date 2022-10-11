@@ -44,7 +44,7 @@ pub async fn invoke() -> Result<()> {
 
     let mut names = Vec::new();
     for name in dump.rows {
-        names.push(name.id)
+        names.push(name.id);
     }
 
     let result = PackageNames {
