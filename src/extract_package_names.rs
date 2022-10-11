@@ -1,3 +1,4 @@
+use crate::common::PackageNames;
 use eyre::Result;
 use owo_colors::OwoColorize;
 use serde::{Deserialize, Serialize};
@@ -9,12 +10,12 @@ use tokio::{
 
 #[derive(Deserialize)]
 struct Dump {
-    total_rows: i32,
-    rows: Vec<Dependency>,
+    total_rows: u64,
+    rows: Vec<DumpDependency>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct Dependency {
+struct DumpDependency {
     id: String,
 }
 
@@ -41,17 +42,18 @@ pub async fn invoke() -> Result<()> {
         .open("out/package_names.json")
         .await?;
 
-    let mut result = String::new();
-    for (index, dependency) in dump.rows.iter().enumerate() {
-        result.push_str(&format!("  \"{}\"", dependency.id));
-        if index != (dump.total_rows - 2) as usize {
-            result.push(',');
-            result.push('\n')
-        }
+    let mut names = Vec::new();
+    for name in dump.rows {
+        names.push(name.id)
     }
 
+    let result = PackageNames {
+        count: dump.total_rows,
+        names,
+    };
+
     out_file
-        .write_all(format!("[\n{result}\n]").as_bytes())
+        .write_all(serde_json::to_string(&result)?.as_bytes())
         .await?;
 
     println!(

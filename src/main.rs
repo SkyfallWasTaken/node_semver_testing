@@ -2,6 +2,7 @@ use eyre::Result;
 use owo_colors::OwoColorize;
 use std::{env, process};
 
+mod common;
 mod extract_package_names;
 mod get_versions_and_ranges;
 mod test_versions_and_ranges;
