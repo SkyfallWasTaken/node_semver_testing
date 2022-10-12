@@ -2,7 +2,9 @@ use crate::common::{Dependency, PackageNames};
 use crate::util::get_client;
 use eyre::Result;
 use indicatif::ProgressBar;
-use tokio::fs::read_to_string;
+use owo_colors::OwoColorize;
+use tokio::fs::{read_to_string, OpenOptions};
+use tokio::io::AsyncWriteExt;
 use tokio::task;
 
 pub async fn invoke() -> Result<()> {
@@ -35,14 +37,14 @@ pub async fn invoke() -> Result<()> {
         }
 
         if let Some(dependencies) = dependency.dependencies {
-            for (_, version) in dependencies {
-                ranges.push(version);
+            for (_, range) in dependencies {
+                ranges.push(range);
             }
         }
 
         if let Some(dev_dependencies) = dependency.dev_dependencies {
-            for (_, version) in dev_dependencies {
-                ranges.push(version);
+            for (_, range) in dev_dependencies {
+                ranges.push(range);
             }
         }
 
@@ -52,6 +54,33 @@ pub async fn invoke() -> Result<()> {
 
     versions.dedup();
     ranges.dedup();
+
+    write_results(versions, ranges).await?;
+    println!(
+        "{} all versions and ranges.",
+        "Successfully wrote".green().bold()
+    );
+
+    Ok(())
+}
+
+pub async fn write_results(versions: Vec<String>, ranges: Vec<String>) -> Result<()> {
+    let mut version_out_file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("out/versions.json")
+        .await?;
+    let mut ranges_out_file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("out/ranges.json")
+        .await?;
+
+    let versions = serde_json::to_string(&versions)?;
+    let ranges = serde_json::to_string(&ranges)?;
+
+    version_out_file.write_all(versions.as_bytes()).await?;
+    ranges_out_file.write_all(ranges.as_bytes()).await?;
 
     Ok(())
 }
