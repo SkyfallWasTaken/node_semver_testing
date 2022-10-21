@@ -7,7 +7,7 @@ pub struct Empty {}
 #[derive(Deserialize, Debug)]
 #[serde(rename_all(deserialize = "kebab-case"))]
 pub struct Dependency {
-    pub versions: HashMap<String, Empty>,
+    pub versions: Option<HashMap<String, Empty>>,
     pub dependencies: Option<HashMap<Empty, String>>,
     pub dev_dependencies: Option<HashMap<Empty, String>>,
 }

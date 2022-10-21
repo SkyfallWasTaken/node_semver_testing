@@ -13,8 +13,8 @@ pub async fn invoke() -> Result<()> {
 
     let pb = ProgressBar::new(package_names.count);
 
-    let mut versions = Vec::new();
-    let mut ranges: Vec<String> = Vec::new();
+    let mut all_versions = Vec::new();
+    let mut all_ranges: Vec<String> = Vec::new();
 
     for name in package_names.names {
         let dependency = task::spawn(async move {
@@ -32,19 +32,21 @@ pub async fn invoke() -> Result<()> {
         })
         .await?;
 
-        for (version, _) in dependency.versions {
-            versions.push(version);
+        if let Some(versions) = dependency.versions {
+            for (version, _) in versions {
+                all_versions.push(version);
+            }
         }
 
         if let Some(dependencies) = dependency.dependencies {
             for (_, range) in dependencies {
-                ranges.push(range);
+                all_ranges.push(range);
             }
         }
 
         if let Some(dev_dependencies) = dependency.dev_dependencies {
             for (_, range) in dev_dependencies {
-                ranges.push(range);
+                all_ranges.push(range);
             }
         }
 
@@ -52,10 +54,10 @@ pub async fn invoke() -> Result<()> {
     }
     pb.finish_with_message("found all versions + ranges");
 
-    versions.dedup();
-    ranges.dedup();
+    all_versions.dedup();
+    all_ranges.dedup();
 
-    write_results(versions, ranges).await?;
+    write_results(all_versions, all_ranges).await?;
     println!(
         "{} all versions and ranges.",
         "Successfully wrote".green().bold()
